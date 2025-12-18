@@ -21,7 +21,7 @@ function AdminHome() {
 
         {/* Content */}
         <main className="p-6 md:p-8">
-          <div className="bg-[#111827] border border-white/5 rounded-2xl p-6 shadow-xl min-h-[85vh]">
+          <div className="border border-white/15 rounded-2xl p-6 shadow-xl shadow-blue-50/10 min-h-[85vh]">
             {displayPanel === "home" && <AdminHomeDashboard />}
             {displayPanel === "freelancer" && <Admin_Freelancer />}
             {displayPanel === "payments" && <AllPayments />}

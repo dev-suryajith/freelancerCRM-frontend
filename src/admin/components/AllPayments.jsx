@@ -8,14 +8,13 @@ function AllPayments() {
   const [payments, setPayments] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // 🔽 SORT STATE
   const [sortBy, setSortBy] = useState("date"); // date | amount | status
-  const [sortOrder, setSortOrder] = useState("desc"); // asc | desc
+  const [sortOrder, setSortOrder] = useState("desc");
 
   const token = sessionStorage.getItem("token");
   const reqHeader = { Authorization: `Bearer ${token}` };
 
-  /* ---------------- FETCH PAYMENTS ---------------- */
+  /* ---------------- FETCH ---------------- */
   const getAllPayments = async () => {
     try {
       const result = await adminGetAllPaymentsAPI(reqHeader);
@@ -30,8 +29,8 @@ function AllPayments() {
   };
 
   useEffect(() => {
-    getAllPayments();
-  }, []);
+    if (token) getAllPayments();
+  }, [token]);
 
   /* ---------------- HELPERS ---------------- */
   const formatDate = (date) =>
@@ -41,17 +40,18 @@ function AllPayments() {
       year: "numeric",
     });
 
-  const statusColors = {
-    Paid: "bg-green-100 text-green-700",
-    Pending: "bg-yellow-100 text-yellow-700",
+  const statusStyles = {
+    Paid: "bg-green-500/10 text-green-400 ring-green-500/20",
+    Pending: "bg-yellow-500/10 text-yellow-400 ring-yellow-500/20",
+    Failed: "bg-red-500/10 text-red-400 ring-red-500/20",
   };
 
   /* ---------------- FILTER ---------------- */
   const filteredPayments = payments.filter(
     (p) =>
-      p.projectName.toLowerCase().includes(search.toLowerCase()) ||
-      p.clientMail.toLowerCase().includes(search.toLowerCase()) ||
-      p.freelancerMail.toLowerCase().includes(search.toLowerCase())
+      p.projectName?.toLowerCase().includes(search.toLowerCase()) ||
+      p.clientMail?.toLowerCase().includes(search.toLowerCase()) ||
+      p.freelancerMail?.toLowerCase().includes(search.toLowerCase())
   );
 
   /* ---------------- SORT ---------------- */
@@ -65,55 +65,59 @@ function AllPayments() {
       valueA = a.status;
       valueB = b.status;
     } else {
-      // date
       valueA = new Date(a.paidAt || a.createdAt);
       valueB = new Date(b.paidAt || b.createdAt);
     }
 
-    if (sortOrder === "asc") {
-      return valueA > valueB ? 1 : -1;
-    } else {
-      return valueA < valueB ? 1 : -1;
-    }
+    return sortOrder === "asc"
+      ? valueA > valueB
+        ? 1
+        : -1
+      : valueA < valueB
+      ? 1
+      : -1;
   });
 
   return (
-    <div className="p-6">
+    <div className="space-y-6">
       {/* HEADER */}
-      <h1 className="text-3xl font-semibold mb-6 flex items-center gap-2">
-        <MdPayment className="text-blue-600" /> All Payments
-      </h1>
+      <div className="flex flex-col sm:flex-row justify-between gap-4">
+        <h1 className="text-2xl font-bold flex items-center gap-3">
+          <MdPayment className="text-indigo-400" />
+          Payments
+        </h1>
+      </div>
 
       {/* FILTERS */}
-      <div className="flex flex-wrap items-center gap-4 mb-6">
-        {/* SEARCH */}
-        <div className="relative w-72">
-          <FaSearch className="absolute left-3 top-3 text-gray-400" />
+      <div className="flex flex-wrap gap-4">
+        {/* Search */}
+        <div className="relative w-full sm:w-80">
+          <FaSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
           <input
             type="text"
-            placeholder="Search by project, client, freelancer..."
-            className="pl-10 pr-4 py-2 w-full border rounded-xl shadow-sm focus:ring-2 focus:ring-blue-400 outline-none"
+            placeholder="Search project, client, freelancer..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
+            className="w-full bg-[#0F172A] border border-white/5 rounded-xl pl-11 pr-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-indigo-500"
           />
         </div>
 
-        {/* SORT BY */}
+        {/* Sort By */}
         <select
-          className="border px-4 py-2 rounded-xl shadow-sm focus:ring-2 focus:ring-blue-400"
           value={sortBy}
           onChange={(e) => setSortBy(e.target.value)}
+          className="bg-[#0F172A] border border-white/5 rounded-xl px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-indigo-500"
         >
           <option value="date">Sort by Date</option>
           <option value="amount">Sort by Amount</option>
           <option value="status">Sort by Status</option>
         </select>
 
-        {/* SORT ORDER */}
+        {/* Sort Order */}
         <select
-          className="border px-4 py-2 rounded-xl shadow-sm focus:ring-2 focus:ring-blue-400"
           value={sortOrder}
           onChange={(e) => setSortOrder(e.target.value)}
+          className="bg-[#0F172A] border border-white/5 rounded-xl px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-indigo-500"
         >
           <option value="desc">Descending</option>
           <option value="asc">Ascending</option>
@@ -121,22 +125,26 @@ function AllPayments() {
       </div>
 
       {/* TABLE */}
-      <div className="bg-white rounded-2xl border shadow-sm p-6">
+      <div className="bg-[#0F172A] border border-white/5 rounded-2xl overflow-x-auto">
         {loading ? (
-          <p className="text-center text-gray-500">Loading payments...</p>
+          <p className="py-12 text-center text-gray-400">
+            Loading payments...
+          </p>
         ) : sortedPayments.length === 0 ? (
-          <p className="text-center text-gray-500">No payments found</p>
+          <p className="py-12 text-center text-gray-400">
+            No payments found
+          </p>
         ) : (
-          <table className="w-full">
-            <thead>
-              <tr className="text-left text-gray-600 border-b">
-                <th className="pb-3">Project</th>
-                <th className="pb-3">Client</th>
-                <th className="pb-3">Freelancer</th>
-                <th className="pb-3">Amount</th>
-                <th className="pb-3">Status</th>
-                <th className="pb-3">Date</th>
-                <th className="pb-3">Txn ID</th>
+          <table className="w-full min-w-[900px]">
+            <thead className="bg-[#020617] text-gray-400 text-sm">
+              <tr>
+                <th className="px-6 py-4 text-left">Project</th>
+                <th className="px-6 py-4 text-left">Client</th>
+                <th className="px-6 py-4 text-left">Freelancer</th>
+                <th className="px-6 py-4 text-left">Amount</th>
+                <th className="px-6 py-4 text-left">Status</th>
+                <th className="px-6 py-4 text-left">Date</th>
+                <th className="px-6 py-4 text-left">Txn ID</th>
               </tr>
             </thead>
 
@@ -144,29 +152,34 @@ function AllPayments() {
               {sortedPayments.map((p) => (
                 <tr
                   key={p._id}
-                  className="border-b last:border-none hover:bg-gray-50 transition"
+                  className="border-t border-white/5 hover:bg-white/5 transition"
                 >
-                  <td className="py-3 font-medium text-gray-800">
+                  <td className="px-6 py-4 font-medium text-white">
                     {p.projectName}
                   </td>
-                  <td className="py-3">{p.clientMail}</td>
-                  <td className="py-3">{p.freelancerMail}</td>
-                  <td className="py-3 font-semibold">
-                    ₹{p.amount.toLocaleString("en-IN")}
+                  <td className="px-6 py-4 text-gray-300">
+                    {p.clientMail}
                   </td>
-                  <td className="py-3">
+                  <td className="px-6 py-4 text-gray-300">
+                    {p.freelancerMail}
+                  </td>
+                  <td className="px-6 py-4 font-semibold text-gray-200">
+                    ₹{p.amount?.toLocaleString("en-IN")}
+                  </td>
+                  <td className="px-6 py-4">
                     <span
-                      className={`px-3 py-1 text-sm rounded-full ${
-                        statusColors[p.status]
+                      className={`inline-flex items-center px-3 py-1 text-xs rounded-full ring-1 ${
+                        statusStyles[p.status] ||
+                        "bg-gray-500/10 text-gray-400 ring-gray-500/20"
                       }`}
                     >
                       {p.status}
                     </span>
                   </td>
-                  <td className="py-3 text-gray-500">
+                  <td className="px-6 py-4 text-gray-400">
                     {formatDate(p.paidAt || p.createdAt)}
                   </td>
-                  <td className="py-3 text-xs text-gray-400">
+                  <td className="px-6 py-4 text-xs text-gray-500">
                     {p.transactionId || "—"}
                   </td>
                 </tr>

@@ -35,10 +35,9 @@ function Header() {
       </Link>
 
       {/* NAV */}
-      <nav className="hidden md:flex items-center gap-6 text-sm font-medium">
+      <nav className="hidden md:flex items-center gap-6 font-medium">
         <Link to="/" className="hover:text-gray-200">Home</Link>
         <Link to="/about" className="hover:text-gray-200">About</Link>
-        <Link to="/courses" className="hover:text-gray-200">Courses</Link>
         <Link to="/contact" className="hover:text-gray-200">Contact</Link>
         <Link to="/pricing" className="hover:text-gray-200">Pricing</Link>
 
@@ -59,14 +58,14 @@ function Header() {
                       transition-all duration-200 z-50">
                 <Link
                   to={`/${userDetails.role}`}
-                  className="block px-4 py-2 hover:bg-gray-100 text-sm"
+                  className="block px-4 py-2 hover:bg-gray-100"
                 >
                   Dashboard
                 </Link>
 
                 <button
                   onClick={handleLogout}
-                  className="w-full text-left px-4 py-2 hover:bg-red-50 text-red-600 text-sm"
+                  className="w-full text-left px-4 py-2 hover:bg-red-50 text-red-600 text-md"
                 >
                   Logout
                 </button>

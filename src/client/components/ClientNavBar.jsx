@@ -1,10 +1,11 @@
+import { LogOut } from 'lucide-react';
 import React, { useState } from 'react';
 import { useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
 function ClientNavBar() {
   const [isLoggedIn, setIsLoggedIn] = useState(false)
-  const navigate =  useNavigate()
+  const navigate = useNavigate()
   const handleLogout = () => {
     sessionStorage.removeItem("loggedUserDetails")
     sessionStorage.removeItem("token")
@@ -25,12 +26,24 @@ function ClientNavBar() {
           Atlas CRM
         </h1>
 
-        {/* Actions */}
-        {isLoggedIn ?
-          <button onClick={handleLogout} className="px-5 py-2 bg-white/20 border border-white/30 text-white font-semibold rounded-xl backdrop-blur-md hover:bg-white/30 transition duration-300">Logout</button>
-          :
-          <Link to={'/login'} className="px-5 py-2 bg-white/20 border border-white/30 text-white font-semibold rounded-xl backdrop-blur-md hover:bg-white/30 transition duration-300">Login</Link>
-        }
+        <div className="flex items-center gap-4">
+          {isLoggedIn ? (
+            <button
+              onClick={handleLogout}
+              className="flex items-center gap-2 px-4 py-2 rounded-xl bg-red-500/90 border border-red-500/70  hover:bg-red-500 text-white transition text-sm font-medium"
+            >
+              <LogOut size={16} />
+              Logout
+            </button>
+          ) : (
+            <Link
+              to="/login"
+              className="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 transition text-sm font-medium text-white"
+            >
+              Login
+            </Link>
+          )}
+        </div>
 
       </div>
     </div>
