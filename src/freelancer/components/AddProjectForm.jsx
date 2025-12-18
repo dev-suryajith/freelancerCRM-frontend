@@ -90,7 +90,7 @@ function AddProjectForm() {
     };
 
     return (
-        <div className="max-w-xl mx-auto bg-gray-900 border border-gray-700 rounded-2xl p-6 shadow-xl">
+        <div className="max-w-xl mx-auto  border border-gray-700 rounded-2xl px-12 shadow-xl">
             <h2 className="text-2xl font-semibold text-gray-100 mb-6">
                 Add New Project
             </h2>

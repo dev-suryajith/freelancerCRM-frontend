@@ -33,10 +33,10 @@ function ClientProjects() {
         Authorization: `Bearer ${token}`,
       };
 
-      
+
       const result = await getClientProjectsAPI(reqHeader);
       console.log(result.data);
-      
+
       setProjects(result.data || []);
     } catch (err) {
       setError("Failed to load projects");

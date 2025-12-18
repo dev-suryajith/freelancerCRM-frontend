@@ -40,6 +40,7 @@ function AddNewWorkStepper({ setShowModal }) {
     const reqHeader = { Authorization: `Bearer ${userToken}` };
 
     const handleSubmit = async () => {
+        console.log(clientData)
         try {
             if (loggedUser && userToken) {
                 const result = await addClientProjectAPI(clientData, reqHeader)
