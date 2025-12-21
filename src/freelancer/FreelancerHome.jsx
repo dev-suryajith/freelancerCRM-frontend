@@ -1,14 +1,14 @@
 // src/freelancer/FreelancerHome.jsx
-import React, { useState } from 'react';
-import FreelancerSidebar from './components/FreelancerSidebar';
+import React, { useEffect, useState } from 'react';
 import HomePanel from './components/HomePanel';
 import ClientPanel from './components/ClientPanel';
 import PaymentsPanel from './components/PaymentsPanel';
 import SettingsPanel from './components/SettingsPanel';
-import ProjectsPanel from './components/ProjectsPanel';
 import FreelancerNavBar from './components/FreelancerNavBar';
+import ProjectsPanel from './components/ProjectsPanel';
 import { Link } from 'react-router-dom';
 import Sidebar from '../common/components/Sidebar';
+import Footer from '../common/Footer';
 
 
 function FreelancerHome() {
@@ -31,6 +31,10 @@ function FreelancerHome() {
         return 'Welcome Back!'
     }
   };
+
+  useEffect(() => {
+    document.title = "Freelancer Dashboard | Atlas CRM";
+  }, []);
 
   return (
     <div className='min-h-screen bg-linear-to-br from-gray-900 via-gray-800 to-gray-900 text-white'>
@@ -59,6 +63,7 @@ function FreelancerHome() {
           }
         </main>
       </div>
+      <Footer />
     </div>
   );
 }

@@ -1,14 +1,15 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Sparkles } from "lucide-react";
-import ClientNavBar from "./components/ClientNavBar";
-import ClientSidebar from "./components/ClientSidebar";
 import ClientProjects from "./components/ClientProjects";
 import ClientChat from "./components/ClientChat";
 import ClientPayment from "./components/ClientPayment";
 import ClientSettings from "./components/ClientSettings";
 import { Link } from "react-router-dom";
 import Sidebar from "../common/components/Sidebar";
+import ClientNavBar from './components/ClientNavBar'
+import Footer from "../common/Footer";
+import Header from "../common/Header";
 
 function ClientDashboard() {
   const [displayPanel, setDisplayPanel] = useState("home");
@@ -90,6 +91,10 @@ function ClientDashboard() {
     }
   };
 
+  useEffect(() => {
+    document.title = "Client Dashboard | Atlas CRM";
+  }, []);
+
   return (
     <div className="min-h-screen bg-linear-to-br from-gray-900 via-gray-800 to-black text-white flex flex-col">
       <ClientNavBar />
@@ -123,6 +128,7 @@ function ClientDashboard() {
           }
         </div>
       </div>
+      <Footer />
     </div>
   );
 }

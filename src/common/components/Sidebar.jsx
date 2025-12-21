@@ -1,135 +1,173 @@
-import React, { useEffect, useState } from 'react';
-import { FaHome, FaCog, FaComments, FaUserCog } from 'react-icons/fa';
-import { ImUsers, ImUserTie } from 'react-icons/im';
-import { IoMenu } from 'react-icons/io5';
-import { MdOutlinePayments, MdPayment, MdWork } from 'react-icons/md';
-import { FaX } from 'react-icons/fa6';
-import serverURL from '../../services/serverURL';
+import React, { useEffect, useState } from "react";
+import {
+    FaHome,
+    FaCog,
+    FaComments,
+    FaUserCog,
+} from "react-icons/fa";
+import { ImUsers, ImUserTie } from "react-icons/im";
+import { IoMenu } from "react-icons/io5";
+import { MdOutlinePayments, MdPayment, MdWork } from "react-icons/md";
+import { FaX } from "react-icons/fa6";
+import serverURL from "../../services/serverURL";
 
 function Sidebar({ setDisplayPanel }) {
-    const [isOpen, setIsOpen] = useState(true);
-    const [disableToggle, setdisableToggle] = useState(true);
-    const [active, setActive] = useState('home');
-    const [screenWidth, setScreenWidth] = useState(window.innerWidth);
-    const [role, setRole] = useState('')
     const loggedUser = JSON.parse(sessionStorage.getItem("loggedUserDetails"));
+    const role = loggedUser?.role;
 
+    const [isOpen, setIsOpen] = useState(false);
+    const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+    const [active, setActive] = useState("home");
+
+    /* ---------------- MENU CONFIG ---------------- */
     const freelancerMenu = [
         { id: "home", label: "Home", icon: <FaHome /> },
         { id: "projects", label: "Projects", icon: <ImUserTie /> },
         { id: "client", label: "Clients", icon: <ImUsers /> },
         { id: "payments", label: "Payments", icon: <MdOutlinePayments /> },
-        { id: "settings", label: "Settings", icon: <FaCog /> }
-    ]
+        { id: "settings", label: "Settings", icon: <FaCog /> },
+    ];
 
     const clientMenu = [
         { id: "projects", label: "My Projects", icon: <MdWork /> },
         { id: "payments", label: "Payments", icon: <MdPayment /> },
         { id: "chat", label: "Messages", icon: <FaComments /> },
-        { id: "settings", label: "Settings", icon: <FaUserCog /> }
-    ]
-    const AdminMenu = [
-        { id: "home", label: "Home", icon: <FaHome /> },
+        { id: "settings", label: "Settings", icon: <FaUserCog /> },
+    ];
+
+    const adminMenu = [
+        { id: "home", label: "Dashboard", icon: <FaHome /> },
         { id: "freelancer", label: "Freelancers", icon: <ImUsers /> },
         { id: "payments", label: "Payments", icon: <MdPayment /> },
-        { id: "settings", label: "Settings", icon: <FaUserCog /> }
-    ]
+        { id: "settings", label: "Admin Settings", icon: <FaUserCog /> },
+    ];
 
-    const menuItems = role === "freelancer" ? freelancerMenu : role === "admin" ? AdminMenu : clientMenu
+    const menuItems = role === "freelancer" ? freelancerMenu : role === "admin" ? adminMenu : clientMenu;
 
+    /* ---------------- SCREEN DETECTION ---------------- */
+    useEffect(() => {
+        const handleResize = () => {
+            const mobile = window.innerWidth < 768;
+            setIsMobile(mobile);
+            setIsOpen(!mobile);
+        };
 
+        handleResize();
+        window.addEventListener("resize", handleResize);
+        return () => window.removeEventListener("resize", handleResize);
+    }, []);
+
+    /* ---------------- ACTIONS ---------------- */
     const handleMenuClick = (id) => {
         setActive(id);
         setDisplayPanel(id);
-    };
-    const checkRole = () => {
-        setRole(loggedUser?.role)
-    }
-    const checkDeviceWidth = () => {
-        const width = window.innerWidth;
-        setScreenWidth(width);
-        if (width < 500) {
-            setIsOpen(false)
-            setdisableToggle(true)
-        }
-        else {
-            setIsOpen(true)
-            setdisableToggle(false)
-        }
+        if (isMobile) setIsOpen(false);
     };
 
+    /* ---------------- THEME ---------------- */
+    const theme = {
+        sidebar:
+            role === "admin"
+                ? "bg-slate-900 border-violet-800 shadow-violet-900/40"
+                : "bg-gray-800 border-blue-800 shadow-blue-900/40",
 
-    useEffect(() => {
-        checkDeviceWidth();
-        checkRole()
-    }, [screenWidth,]);
+        active:
+            role === "admin"
+                ? "bg-gradient-to-r from-violet-600 to-indigo-600 text-white shadow-lg"
+                : "bg-blue-600 text-white",
+
+        hover:
+            role === "admin"
+                ? "hover:bg-violet-800/40 hover:text-white"
+                : "hover:bg-gray-700 hover:text-white",
+
+        accent:
+            role === "admin" ? "text-violet-400" : "text-blue-400",
+    };
 
     return (
-        <div
-            className={`z-10 bg-gray-800 min-h-screen flex flex-col items-center py-6 border-r-2 shadow-[10px_0_15px_-3px_rgba(0,0,0,0.3)] shadow-blue-800/50 border-blue-800 transition-all duration-300 ${isOpen ? 'w-64' : 'w-20'
-                }`}
-        >
-            {/* Toggle Button */}
-            {
-                !disableToggle &&
+        <>
+            {/* MOBILE TOGGLE */}
+            {isMobile && !isOpen && (
                 <button
-                    onClick={() => setIsOpen(!isOpen)}
-                    className="self-end mr-4 mb-6 text-white/75 hover:text-blue-500 transition"
+                    onClick={() => setIsOpen(true)}
+                    className={`fixed top-20 left-4 z-50 p-2 rounded-lg shadow-lg ${theme.active}`}
                 >
-                    {isOpen ? <FaX size={20} /> : <IoMenu size={24} />}
+                    <IoMenu size={22} />
                 </button>
-            }
+            )}
 
-            {/* Profile Section */}
-            <div className="flex flex-col items-center mb-10">
-                <div className="relative">
-                    <div className="absolute inset-0 rounded-full bg-linear-to-r= from-blue-500 to-indigo-400 p-0.5">
-                        <div className="rounded-full w-full h-full"></div>
-                    </div>
+            {/* OVERLAY */}
+            {isMobile && isOpen && (
+                <div
+                    onClick={() => setIsOpen(false)}
+                    className="fixed inset-0 bg-black/60 z-40"
+                />
+            )}
 
-                    <img src={loggedUser ? `${serverURL}/ProfileImageUploads/${loggedUser.profile}` : "/bmc.png"} alt="Profile" className={`rounded-full border-4 border-white shadow-md transition-all duration-300 ${isOpen ? 'w-24 h-24' : 'w-12 h-12'}`} />
-
-                </div>
-                {isOpen && (
-                    <>
-                        {loggedUser?.role == 'freelancer' && <h1 className="text-lg font-semibold mt-3 text-gray-50">{loggedUser?.freelancerName}</h1>}
-                        {loggedUser?.role == 'client' && <h1 className="text-lg font-semibold mt-3 text-gray-50">{loggedUser?.username}</h1>}
-                        {loggedUser?.role == 'admin' && <h1 className="text-lg font-semibold mt-3 text-gray-50">{loggedUser?.username}</h1>}
-                        
-                        <p className="text-gray-100/75 text-xs text-center">{loggedUser?.role.toLocaleUpperCase()}</p>
-                    </>
-                )}
-            </div>
-
-            {/* Navigation Menu */}
-            <nav className="flex flex-col w-full px-3 space-y-2">
-                {menuItems.map((item) => (
+            {/* SIDEBAR */}
+            <aside
+                className={`fixed md:static z-50 min-h-screen flex flex-col py-6
+        border-r shadow-xl transition-all duration-300
+        ${theme.sidebar}
+        ${isOpen ? "w-64 translate-x-0" : "w-64 -translate-x-full md:translate-x-0 md:w-20"}`}
+            >
+                {/* HEADER */}
+                <div className="flex justify-between items-center px-4 mb-6">
+                    <h2 className={`font-bold text-lg ${theme.accent}`}>
+                        {role === "admin" ? "ADMIN PANEL" : "MENU"}
+                    </h2>
                     <button
-                        key={item.id}
-                        onClick={() => handleMenuClick(item.id)}
-                        className={`group relative flex items-center gap-3 px-4 py-2 rounded-md font-medium text-white/75 transition-all duration-200 ${active === item.id
-                            ? 'bg-blue-500 text-white shadow-md'
-                            : 'hover:bg-blue-50 hover:text-blue-600'
-                            }`}
+                        onClick={() => setIsOpen(false)}
+                        className="md:hidden text-white"
                     >
-                        <span className="text-lg">{item.icon}</span>
-                        {isOpen && <span>{item.label}</span>}
-
-                        {/* Tooltip when collapsed */}
-                        {!isOpen && (
-                            <span className="absolute left-full ml-3 px-2 py-1 bg-gray-900 text-white text-xs rounded-md opacity-0 group-hover:opacity-100 whitespace-nowrap z-10 transition-opacity duration-300">
-                                {item.label}
-                            </span>
-                        )}
+                        <FaX />
                     </button>
-                ))}
-            </nav>
+                </div>
 
-            {/* Footer */}
-            <div className="mt-auto text-gray-400 text-xs py-4">
-                {isOpen && <p>© 2025 Freelancer CRM</p>}
-            </div>
-        </div>
+                {/* PROFILE */}
+                <div className="flex flex-col items-center mb-8">
+                    <img
+                        src={
+                            loggedUser?.profile
+                                ? `${serverURL}/ProfileImageUploads/${loggedUser.profile}`
+                                : "/bmc.png"
+                        }
+                        className="w-20 h-20 rounded-full border-4 border-white shadow-md"
+                        alt="profile"
+                    />
+                    <h3 className="mt-3 text-white font-semibold">
+                        {loggedUser?.username || loggedUser?.freelancerName}
+                    </h3>
+                    <p className={`text-xs uppercase ${theme.accent}`}>
+                        {role}
+                    </p>
+                </div>
+
+                {/* MENU */}
+                <nav className="flex flex-col gap-2 px-3">
+                    {menuItems.map((item) => (
+                        <button
+                            key={item.id}
+                            onClick={() => handleMenuClick(item.id)}
+                            className={`flex items-center gap-3 px-4 py-2 rounded-lg transition-all
+              ${active === item.id
+                                    ? theme.active
+                                    : `text-gray-300 ${theme.hover}`
+                                }`}
+                        >
+                            <span className="text-lg">{item.icon}</span>
+                            <span>{item.label}</span>
+                        </button>
+                    ))}
+                </nav>
+
+                {/* FOOTER */}
+                <div className="mt-auto text-center text-xs text-gray-400 py-4">
+                    © 2025 Atlas CRM
+                </div>
+            </aside>
+        </>
     );
 }
 

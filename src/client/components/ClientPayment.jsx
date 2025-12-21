@@ -252,7 +252,7 @@ console.log(res.data);
                         <MdInfoOutline />
                       </button>
 
-                      {p.projectStatus == "Paid" && (
+                      {p.paymentStatus == "Paid" && (
                         <button
                           onClick={() => generatePDF(p)}
                           className="bg-gray-700 px-3 py-2 rounded-lg"
@@ -261,7 +261,7 @@ console.log(res.data);
                         </button>
                       )}
 
-                      {p.projectStatus == "Pending" && (
+                      {p.paymentStatus == "Pending" && (
                         <button
                           onClick={() => handlePayment(p)}
                           disabled={payingId === p._id}
@@ -297,7 +297,7 @@ console.log(res.data);
             <p>Project: {selected.projectName}</p>
             <p>Amount: {formatCurrency(selected.projectAmount)}</p>
             <p>Date: {formatDate(selected.paymentDate)}</p>
-            <p>Status: {selected.projectStatus}</p>
+            <p>Status: {selected.paymentStatus}</p>
 
             <div className="mt-6 flex justify-end gap-3">
               <button

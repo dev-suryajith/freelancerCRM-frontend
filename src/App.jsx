@@ -51,7 +51,7 @@ function App() {
         pauseOnHover
         theme="dark"
       />
-      <Footer />
+      {/* <Footer /> */}
 
     </>
   )

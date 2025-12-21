@@ -1,8 +1,5 @@
 import React, { useEffect, useState } from "react";
 import {
-  Clock,
-  CheckCircle,
-  AlertCircle,
   Edit2,
   Trash2,
   X,
@@ -19,9 +16,13 @@ import {
 import { toast } from "react-toastify";
 
 function ProjectsPanel() {
-  const input = "w-full px-4 py-2 rounded-lg bg-gray-800 text-gray-100 placeholder-gray-400 border border-gray-700 focus:ring-2 focus:ring-blue-600 outline-none"
+  const input =
+    "w-full px-4 py-2 rounded-lg bg-gray-800 text-gray-100 placeholder-gray-400 border border-gray-700 focus:ring-2 focus:ring-indigo-600 outline-none";
+
   const [editRow, setEditRow] = useState(null);
   const [editingData, setEditingData] = useState({});
+  const [originalData, setOriginalData] = useState(null);
+
   const [openModal, setOpenModal] = useState(false);
   const [allProjects, setAllProjects] = useState([]);
   const [allClients, setAllClients] = useState([]);
@@ -38,32 +39,24 @@ function ProjectsPanel() {
     projectDescription: "",
   });
 
-  const loggedUser = JSON.parse(sessionStorage.getItem('loggedUserDetails'))
+  const loggedUser = JSON.parse(sessionStorage.getItem("loggedUserDetails"));
   const token = sessionStorage.getItem("token");
   const reqHeader = { Authorization: `Bearer ${token}` };
 
-  /* ---------------- FETCH DATA ---------------- */
+  /* ---------------- FETCH ---------------- */
   const getAllProjects = async () => {
-    try {
-      const res = await getAllProjectsAPI(reqHeader);
-      setAllProjects(Array.isArray(res.data) ? res.data : []);
-    } catch (error) {
-      console.log(error);
-    }
+    const res = await getAllProjectsAPI(reqHeader);
+    setAllProjects(Array.isArray(res.data) ? res.data : []);
   };
 
   const getAllClients = async () => {
-    try {
-      const res = await getAllClientsAPI(reqHeader);
-      setAllClients(Array.isArray(res.data) ? res.data : []);
-    } catch (error) {
-      console.log(error);
-    }
+    const res = await getAllClientsAPI(reqHeader);
+    setAllClients(Array.isArray(res.data) ? res.data : []);
   };
 
   useEffect(() => {
     if (loggedUser) {
-      setNewProject({ ...newProject, freelancerMail: loggedUser.email })
+      setNewProject((p) => ({ ...p, freelancerMail: loggedUser.email }));
     }
     if (token) {
       getAllProjects();
@@ -74,28 +67,26 @@ function ProjectsPanel() {
   /* ---------------- ADD PROJECT ---------------- */
   const handleAddProject = async () => {
     if (!newProject.projectName || !newProject.clientMail) {
-      toast.warn("Project name and client are required");
-      return;
+      return toast.warn("Project name and client required");
     }
 
     try {
       setAddingProject(true);
       const res = await addProjectAPI(newProject, reqHeader);
-
       if (res.status === 200) {
-        toast.success("Project added successfully");
+        toast.success("Project added");
         setOpenModal(false);
         setNewProject({
+          ...newProject,
           projectName: "",
           clientMail: "",
-          projectStatus: "Pending",
           projectDeadline: "",
           projectAmount: "",
           projectDescription: "",
         });
         getAllProjects();
       }
-    } catch (err) {
+    } catch {
       toast.error("Failed to add project");
     } finally {
       setAddingProject(false);
@@ -103,23 +94,16 @@ function ProjectsPanel() {
   };
 
   /* ---------------- DELETE ---------------- */
-  const handleDeleteProject = async (projectId) => {
+  const handleDeleteProject = async (id) => {
     if (!window.confirm("Delete this project?")) return;
-    try {
-      const res = await deleteFreelancerProjectAPI(projectId, reqHeader);
-      if (res.status === 200) {
-        toast.success("Project deleted");
-        getAllProjects();
-      }
-    } catch {
-      toast.error("Delete failed");
-    }
+    await deleteFreelancerProjectAPI(id, reqHeader);
+    toast.success("Project deleted");
+    getAllProjects();
   };
 
   /* ---------------- EDIT ---------------- */
   const handleEditClick = (project) => {
-    setEditRow(project._id);
-    setEditingData({
+    const snapshot = {
       projectName: project.projectName,
       clientMail: project.clientMail,
       projectStatus: project.projectStatus,
@@ -127,24 +111,27 @@ function ProjectsPanel() {
         ? new Date(project.projectDeadline).toISOString().split("T")[0]
         : "",
       projectAmount: project.projectAmount || "",
-    });
+    };
+
+    setEditRow(project._id);
+    setEditingData(snapshot);
+    setOriginalData(snapshot);
   };
 
-  const handleSaveEdit = async (projectId) => {
-    if (!editingData.projectName) return toast.warn("Project name required");
+  const handleCancelEdit = () => {
+    setEditingData(originalData);
+    setEditRow(null);
+    setOriginalData(null);
+  };
 
+  const handleSaveEdit = async (id) => {
     setIsLoading(true);
     try {
-      const res = await updateFreelancerProjectAPI(
-        projectId,
-        editingData,
-        reqHeader
-      );
-      if (res.status === 200) {
-        setEditRow(null);
-        setEditingData({});
-        getAllProjects();
-      }
+      await updateFreelancerProjectAPI(id, editingData, reqHeader);
+      toast.success("Project updated");
+      setEditRow(null);
+      setOriginalData(null);
+      getAllProjects();
     } catch {
       toast.error("Update failed");
     } finally {
@@ -152,11 +139,11 @@ function ProjectsPanel() {
     }
   };
 
-  const getStatusBadge = (status) => {
+  const statusBadge = (status) => {
     const map = {
-      Completed: "bg-green-900/30 text-green-400",
-      "In Progress": "bg-blue-900/30 text-blue-400",
       Pending: "bg-yellow-900/30 text-yellow-400",
+      "In Progress": "bg-blue-900/30 text-blue-400",
+      Completed: "bg-green-900/30 text-green-400",
     };
     return (
       <span className={`px-3 py-1 rounded-full text-xs ${map[status]}`}>
@@ -168,8 +155,8 @@ function ProjectsPanel() {
   return (
     <>
       {/* HEADER */}
-      <div className="bg-gray-900 border border-white/5 rounded-2xl p-6 overflow-x-auto">
-        <div className="flex flex-col sm:flex-row justify-between gap-4 mb-6">
+      <div className="bg-gray-900 border border-white/5 rounded-2xl p-6">
+        <div className="flex justify-between mb-6">
           <div>
             <h2 className="text-2xl font-bold text-white">Projects</h2>
             <p className="text-gray-400 text-sm">Manage all projects</p>
@@ -184,60 +171,69 @@ function ProjectsPanel() {
         </div>
 
         {/* TABLE */}
-        <div className="overflow-x-auto border border-gray-800 bg-[#222938] rounded-xl">
+        <div className="overflow-x-auto rounded-xl border border-gray-800">
           <table className="w-full min-w-[900px]">
             <thead className="bg-[#0F1525]">
               <tr>
-                {["Project", "Client", "Status", "Deadline", "Amount", "Actions"].map(h => (
-                  <th key={h} className="px-6 py-4 text-left text-gray-300 text-sm">{h}</th>
+                {["Project", "Client", "Status", "Deadline", "Amount", "Actions"].map((h) => (
+                  <th key={h} className="px-6 py-4 text-left text-gray-300 text-sm">
+                    {h}
+                  </th>
                 ))}
               </tr>
             </thead>
 
             <tbody>
-              {allProjects.map((project) => {
-                const isEditing = editRow === project._id;
+              {allProjects.map((p) => {
+                const editing = editRow === p._id;
                 return (
-                  <tr key={project._id} className="border-t border-white/5 hover:bg-white/10 transition">
+                  <tr
+                    key={p._id}
+                    className={`border-t border-white/5 ${
+                      editing
+                        ? "bg-indigo-500/10 ring-1 ring-indigo-500/40"
+                        : "hover:bg-white/10"
+                    }`}
+                  >
                     <td className="px-6 py-4">
-                      {isEditing ? (
+                      {editing ? (
                         <input
-                          className="input"
+                          className={input}
                           value={editingData.projectName}
                           onChange={(e) =>
                             setEditingData({ ...editingData, projectName: e.target.value })
                           }
                         />
                       ) : (
-                        project.projectName
+                        p.projectName
                       )}
                     </td>
 
                     <td className="px-6 py-4">
-                      {isEditing ? (
+                      {editing ? (
                         <select
-                          className="input"
+                          className={input}
                           value={editingData.clientMail}
                           onChange={(e) =>
                             setEditingData({ ...editingData, clientMail: e.target.value })
                           }
                         >
-                          <option value="">Select Client</option>
+                          <option value="">Select client</option>
                           {allClients.map((c) => (
                             <option key={c._id} value={c.email}>
-                              {c.username} ({c.email})
+                              {c.username}
                             </option>
                           ))}
                         </select>
                       ) : (
-                        project.clientMail
+                        p.clientMail
                       )}
                     </td>
 
                     <td className="px-6 py-4">
-                      {isEditing ? (
+                      {editing ? (
                         <select
-                          className="input"
+                          className={input}
                           value={editingData.projectStatus}
                           onChange={(e) =>
                             setEditingData({ ...editingData, projectStatus: e.target.value })
@@ -248,55 +244,56 @@ function ProjectsPanel() {
                           <option>Completed</option>
                         </select>
                       ) : (
-                        getStatusBadge(project.projectStatus)
+                        statusBadge(p.projectStatus)
                       )}
                     </td>
 
                     <td className="px-6 py-4">
-                      {isEditing ? (
+                      {editing ? (
                         <input
                           type="date"
-                          className="input"
+                          className={input}
                           value={editingData.projectDeadline}
                           onChange={(e) =>
                             setEditingData({ ...editingData, projectDeadline: e.target.value })
                           }
                         />
                       ) : (
-                        project.projectDeadline
-                          ? new Date(project.projectDeadline).toLocaleDateString()
+                        p.projectDeadline
+                          ? new Date(p.projectDeadline).toLocaleDateString()
                           : "—"
                       )}
                     </td>
 
                     <td className="px-6 py-4">
-                      {isEditing ? (
+                      {editing ? (
                         <input
                           type="number"
-                          className="input"
+                          className={input}
                           value={editingData.projectAmount}
                           onChange={(e) =>
                             setEditingData({ ...editingData, projectAmount: e.target.value })
                           }
                         />
                       ) : (
-                        project.projectAmount ? `₹${project.projectAmount}` : "—"
+                        `₹${p.projectAmount || "—"}`
                       )}
                     </td>
 
                     <td className="px-6 py-4">
-                      {isEditing ? (
+                      {editing ? (
                         <div className="flex gap-2">
                           <button
-                            onClick={() => handleSaveEdit(project._id)}
-                            className="btn-success"
+                            onClick={() => handleSaveEdit(p._id)}
                             disabled={isLoading}
+                            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-green-600 hover:bg-green-700 text-white"
                           >
-                            <Save size={16} /> Save
+                            <Save size={16} />
+                            {isLoading ? "Saving..." : "Save"}
                           </button>
                           <button
-                            onClick={() => setEditRow(null)}
-                            className="btn-secondary"
+                            onClick={handleCancelEdit}
+                            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-gray-600 hover:bg-gray-700 text-white"
                           >
                             <X size={16} /> Cancel
                           </button>
@@ -304,16 +301,17 @@ function ProjectsPanel() {
                       ) : (
                         <div className="flex gap-2">
                           <button
-                            onClick={() => handleEditClick(project)}
-                            className="btn-edit"
+                            disabled={editRow !== null}
+                            onClick={() => handleEditClick(p)}
+                            className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white disabled:opacity-40"
                           >
-                            <Edit2 size={16} /> Edit
+                            <Edit2 size={16} />
                           </button>
                           <button
-                            onClick={() => handleDeleteProject(project._id)}
-                            className="btn-delete"
+                            onClick={() => handleDeleteProject(p._id)}
+                            className="px-4 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white"
                           >
-                            <Trash2 size={16} /> Delete
+                            <Trash2 size={16} />
                           </button>
                         </div>
                       )}
@@ -338,72 +336,40 @@ function ProjectsPanel() {
             </div>
 
             <div className="space-y-4">
-              <input
-                className={input}
-                placeholder="Project Name"
+              <input className={input} placeholder="Project Name"
                 value={newProject.projectName}
-                onChange={(e) =>
-                  setNewProject({ ...newProject, projectName: e.target.value })
-                }
+                onChange={(e) => setNewProject({ ...newProject, projectName: e.target.value })}
               />
 
-              <select
-                className={input}
+              <select className={input}
                 value={newProject.clientMail}
-                onChange={(e) =>
-                  setNewProject({ ...newProject, clientMail: e.target.value })
-                }
+                onChange={(e) => setNewProject({ ...newProject, clientMail: e.target.value })}
               >
                 <option value="">Select Client</option>
                 {allClients.map((c) => (
-                  <option key={c._id} value={c.email}>
-                    {c.username} ({c.email})
-                  </option>
+                  <option key={c._id} value={c.email}>{c.username}</option>
                 ))}
               </select>
 
-              <input
-                className={`${input} read-only:`}
-                readOnly='true'
-                value={'Pending'}
-                onChange={(e) =>
-                  setNewProject({ ...newProject, projectStatus: 'Pending' })
-                }
-              />
-
-              <input
-                type="date"
-                className={input}
+              <input type="date" className={input}
                 value={newProject.projectDeadline}
-                onChange={(e) =>
-                  setNewProject({ ...newProject, projectDeadline: e.target.value })
-                }
+                onChange={(e) => setNewProject({ ...newProject, projectDeadline: e.target.value })}
               />
 
-              <input
-                type="number"
-                className={input}
-                placeholder="Amount"
+              <input type="number" className={input} placeholder="Amount"
                 value={newProject.projectAmount}
-                onChange={(e) =>
-                  setNewProject({ ...newProject, projectAmount: e.target.value })
-                }
+                onChange={(e) => setNewProject({ ...newProject, projectAmount: e.target.value })}
               />
 
-              <textarea
-                className={input}
-                rows="3"
-                placeholder="Description"
+              <textarea className={input} rows="3" placeholder="Description"
                 value={newProject.projectDescription}
-                onChange={(e) =>
-                  setNewProject({ ...newProject, projectDescription: e.target.value })
-                }
+                onChange={(e) => setNewProject({ ...newProject, projectDescription: e.target.value })}
               />
 
               <button
                 onClick={handleAddProject}
                 disabled={addingProject}
-                className="w-full bg-indigo-600 hover:bg-indigo-700 py-2.5 rounded-xl text-white disabled:opacity-50"
+                className="w-full bg-indigo-600 hover:bg-indigo-700 py-2.5 rounded-xl text-white"
               >
                 {addingProject ? "Adding..." : "Add Project"}
               </button>
