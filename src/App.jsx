@@ -27,7 +27,7 @@ function App() {
         <Route path='/freelancer' element={<FreelancerHome />} />
         <Route path='/admin' element={<AdminHome />} />
         <Route path='/login' element={<Login />} />
-        <Route path='/register' element={<Login tab='register' />} />
+        <Route path='/register' element={<Login tab='register'   />} />
         <Route path='/set-password/:email' element={<SetClientPassword />} />
         <Route path='/client' element={<ClientDashboard />} />
         <Route path='/payment' element={<Payment />} />

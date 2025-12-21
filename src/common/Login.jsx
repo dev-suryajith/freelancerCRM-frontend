@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { loginAPI, registerAPI, sendCodeAPI } from "../services/allAPI";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { motion } from "framer-motion";
@@ -129,8 +129,8 @@ function Login({ tab }) {
 
                     <p className="text-center text-gray-300 text-sm mb-8">
                       {tab === "register"
-                        ? "Register to start your journey"
-                        : "Log in to continue your journey"}
+                        ? "Register to start managing your freelancing journey"
+                        : "Log in to continue managing your freelancing journey"}
                     </p>
 
                     <form className="space-y-5">
