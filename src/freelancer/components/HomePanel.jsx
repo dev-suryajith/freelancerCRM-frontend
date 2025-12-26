@@ -1,31 +1,40 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Briefcase, Users, CreditCard, TrendingUp } from "lucide-react";
 import { FaX } from "react-icons/fa6";
 import AddNewWorkStepper from "../AddNewWorkStepper";
-import { getAllProjectsAPI, getAllClientsAPI, allFreelancerPaymentsAPI } from "../../services/allAPI";
+import {
+  getAllProjectsAPI,
+  getAllClientsAPI,
+  allFreelancerPaymentsAPI,
+} from "../../services/allAPI";
 
 function HomePanel() {
   const [showModal, setShowModal] = useState(false);
   const [projects, setProjects] = useState([]);
   const [clients, setClients] = useState([]);
   const [payments, setPayments] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   const token = sessionStorage.getItem("token");
   const reqHeader = { Authorization: `Bearer ${token}` };
 
-  // Fetch all stats dynamically
+  /* ---------------- FETCH DASHBOARD DATA ---------------- */
   const fetchStats = async () => {
     try {
+      setLoading(true);
       const [projectsRes, clientsRes, paymentsRes] = await Promise.all([
         getAllProjectsAPI(reqHeader),
         getAllClientsAPI(reqHeader),
         allFreelancerPaymentsAPI(reqHeader),
       ]);
-      setProjects(projectsRes.data);
-      setClients(clientsRes.data);
-      setPayments(paymentsRes.data);
+
+      setProjects(projectsRes?.data || []);
+      setClients(clientsRes?.data || []);
+      setPayments(paymentsRes?.data || []);
     } catch (err) {
-      console.error(err);
+      console.error("Dashboard fetch failed:", err);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -33,118 +42,161 @@ function HomePanel() {
     if (token) fetchStats();
   }, [token]);
 
-  const stats = [
-    {
-      title: "Active Projects",
-      value: projects.length,
-      color: "text-blue-600",
-      icon: <Briefcase size={28} className="text-blue-600" />,
-    },
-    {
-      title: "Total Clients",
-      value: clients.length,
-      color: "text-green-600",
-      icon: <Users size={28} className="text-green-600" />,
-    },
-    {
-      title: "Pending Payments",
-      value: `₹${payments.filter(p => p.status !== "Paid").reduce((a,b) => a + b.amount, 0)}`,
-      color: "text-red-500",
-      icon: <CreditCard size={28} className="text-red-500" />,
-    },
-  ];
+  /* ---------------- DERIVED VALUES ---------------- */
+  const pendingAmount = useMemo(() => {
+    return payments
+      .filter((p) => p.status !== "Paid")
+      .reduce((sum, p) => sum + (p.amount || 0), 0);
+  }, [payments]);
 
-  // Recent activity based on projects and payments
-  const recentActivity = [
-    ...payments.slice(-3).map(p => ({
-      action: `Payment ${p.status} from ${p.clientMail} for ${p.projectName}`,
-      time: new Date(p.updatedAt).toLocaleString(),
-    })),
-    ...projects.slice(-3).map(p => ({
-      action: `New project "${p.projectName}" added`,
-      time: new Date(p.createdAt).toLocaleString(),
-    })),
-  ];
+  const formattedPendingAmount = useMemo(() => {
+    return new Intl.NumberFormat("en-IN", {
+      style: "currency",
+      currency: "INR",
+      maximumFractionDigits: 0,
+    }).format(pendingAmount);
+  }, [pendingAmount]);
+
+  const stats = useMemo(
+    () => [
+      {
+        title: "Active Projects",
+        value: projects.length,
+        icon: <Briefcase size={26} className="text-blue-400" />,
+      },
+      {
+        title: "Total Clients",
+        value: clients.length,
+        icon: <Users size={26} className="text-green-400" />,
+      },
+      {
+        title: "Pending Payments",
+        value: formattedPendingAmount,
+        icon: <CreditCard size={26} className="text-red-400" />,
+      },
+    ],
+    [projects.length, clients.length, formattedPendingAmount]
+  );
+
+  /* ---------------- RECENT ACTIVITY ---------------- */
+  const recentActivity = useMemo(() => {
+    const paymentActivity = payments.map((p) => ({
+      text: `Payment ${p.status} from ${p.clientMail} for ${p.projectName}`,
+      time: new Date(p.updatedAt),
+    }));
+
+    const projectActivity = projects.map((p) => ({
+      text: `New project "${p.projectName}" added`,
+      time: new Date(p.createdAt),
+    }));
+
+    return [...paymentActivity, ...projectActivity]
+      .sort((a, b) => b.time - a.time)
+      .slice(0, 5);
+  }, [payments, projects]);
 
   return (
-    <div className="p-4 sm:p-6">
+    <div className="p-5 sm:p-7 space-y-10">
 
-      {/* Header */}
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl sm:text-3xl font-semibold text-white">
+      {/* HEADER */}
+      <div className="flex justify-between items-center">
+        <h1 className="text-2xl sm:text-3xl font-semibold text-white tracking-tight">
           Dashboard Overview
         </h1>
 
         <button
           onClick={() => setShowModal(true)}
-          className="bg-blue-600 px-3 py-2 sm:px-4 sm:py-2 text-white text-sm sm:text-lg font-semibold rounded hover:bg-blue-700 transition"
+          className="bg-white/10 backdrop-blur-md border border-white/20
+                     px-4 py-2.5 text-white font-semibold rounded-xl
+                     hover:bg-white/20 hover:shadow-[0_0_30px_rgba(255,255,255,0.25)]
+                     transition-all"
         >
           + Add New Work
         </button>
       </div>
 
-      {/* Stats Section */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 mb-10">
+      {/* STATS */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {stats.map((stat, idx) => (
           <div
             key={idx}
-            className="bg-white rounded-2xl shadow-md p-5 hover:shadow-xl transition flex justify-between items-center"
+            className="relative bg-white/10 backdrop-blur-xl border border-white/20
+                       rounded-2xl p-6 shadow-lg
+                       hover:shadow-[0_0_40px_rgba(255,255,255,0.15)]
+                       transition-all duration-300 flex items-center justify-between group"
           >
-            <div>
-              <h2 className="text-gray-600 text-sm sm:text-base font-medium">
+            {/* Glow overlay */}
+            <div className="absolute inset-0 rounded-2xl bg-linear-to-br from-white/10 to-transparent
+                            opacity-0 group-hover:opacity-100 transition pointer-events-none" />
+
+            <div className="relative z-10">
+              <p className="text-white/70 text-sm font-medium">
                 {stat.title}
-              </h2>
-              <p className={`text-2xl sm:text-3xl font-bold mt-2 ${stat.color}`}>
-                {stat.value}
+              </p>
+              <p className="text-3xl font-bold text-white mt-2 tracking-tight">
+                {loading ? "—" : stat.value}
               </p>
             </div>
-            <div className="bg-gray-100 p-3 rounded-full">{stat.icon}</div>
+
+            <div className="relative z-10 bg-white/15 backdrop-blur-md p-4 rounded-xl">
+              {stat.icon}
+            </div>
           </div>
         ))}
       </div>
 
-      {/* Recent Activity */}
-      <div className="bg-white rounded-2xl shadow-md p-5 sm:p-6">
-        <h2 className="text-lg sm:text-xl font-semibold text-gray-800 mb-4 flex items-center gap-2">
-          <TrendingUp size={22} className="text-indigo-500" />
+      {/* RECENT ACTIVITY */}
+      <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-6 shadow-lg">
+        <h2 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+          <TrendingUp size={22} className="text-indigo-400" />
           Recent Activity
         </h2>
 
-        <ul className="space-y-3">
-          {recentActivity.length === 0 ? (
-            <li className="text-gray-500 text-sm">No recent activity</li>
-          ) : (
-            recentActivity.slice(0, 5).map((item, idx) => (
+        {recentActivity.length === 0 ? (
+          <p className="text-white/60 text-sm">No recent activity</p>
+        ) : (
+          <ul className="space-y-4">
+            {recentActivity.map((item, idx) => (
               <li
                 key={idx}
-                className="flex justify-between items-center border-b pb-2 last:border-0"
+                className="flex justify-between items-start gap-4 py-3
+                           border-b border-white/10 last:border-0"
               >
-                <span className="text-gray-700 text-sm sm:text-base">{item.action}</span>
-                <span className="text-xs sm:text-sm text-gray-500">{item.time}</span>
+                <span className="text-white/80 text-sm leading-relaxed">
+                  {item.text}
+                </span>
+                <span className="text-xs text-white/50 whitespace-nowrap">
+                  {item.time.toLocaleString()}
+                </span>
               </li>
-            ))
-          )}
-        </ul>
+            ))}
+          </ul>
+        )}
       </div>
 
-      {/* Modal */}
+      {/* MODAL */}
       {showModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-3 sm:p-0 z-50">
-          <div className="bg-white min-h-[420px] w-full max-w-md sm:max-w-lg shadow-xl rounded-2xl relative">
-
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50">
+          <div
+            className="bg-white/10 backdrop-blur-2xl border border-white/20
+                       w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden"
+          >
             {/* Modal Header */}
-            <div className="w-full p-4 sm:p-5 flex justify-between items-center bg-gray-500 rounded-t-2xl">
-              <h1 className="text-white text-lg sm:text-2xl font-semibold">New Work</h1>
+            <div className="flex justify-between items-center px-6 py-4
+                            bg-white/10 border-b border-white/20">
+              <h1 className="text-white text-lg font-semibold tracking-wide">
+                New Work
+              </h1>
               <button
-                className="text-white hover:text-black text-lg sm:text-xl"
                 onClick={() => setShowModal(false)}
+                className="text-white/70 hover:text-red-400 transition"
               >
                 <FaX />
               </button>
             </div>
 
             {/* Modal Body */}
-            <div className="p-4 sm:p-6">
+            <div className="p-6">
               <AddNewWorkStepper setShowModal={setShowModal} />
             </div>
           </div>

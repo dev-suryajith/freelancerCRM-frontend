@@ -19,7 +19,7 @@ function Navbar() {
   }, []);
 
   return (
-    <header className="sticky top-0 z-50 w-full bg-linear-to-r py-4 from-[#020617] via-[#0F172A] to-[#020617] border-b border-white/5 backdrop-blur">
+    <header className="sticky top-0 z-100 w-full bg-linear-to-r py-4 from-[#020617] via-[#0F172A] to-[#020617] border-b border-white/5 backdrop-blur">
       <div className="flex items-center justify-between px-6 py-4">
         {/* Left */}
         <h1 className="text-xl sm:text-2xl font-bold text-white tracking-wide">

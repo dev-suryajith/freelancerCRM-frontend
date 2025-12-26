@@ -3,7 +3,7 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import { loginAPI, registerAPI, sendCodeAPI } from "../services/allAPI";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { motion } from "framer-motion";
-import { toast, ToastContainer } from "react-toastify";
+import { toast } from "react-toastify";
 
 
 function Login({ tab }) {
@@ -225,6 +225,7 @@ function Login({ tab }) {
                         onClick={() =>
                           tab === "register" ? handleRegister() : handleLogin()
                         }
+
                         className={`w-full py-3 rounded-xl text-lg font-medium shadow-lg text-white ${tab === "register"
                           ? "bg-purple-600 hover:bg-purple-700"
                           : "bg-blue-600 hover:bg-blue-700"

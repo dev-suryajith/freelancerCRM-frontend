@@ -1,36 +1,37 @@
-import { LogOut } from 'lucide-react';
-import React, { useState } from 'react';
-import { useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import React, { useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { LogOut } from "lucide-react";
 
 function FreelancerNavBar() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false)
-const navigate=useNavigate()
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const navigate = useNavigate();
+
   const handleLogout = () => {
-    sessionStorage.removeItem("loggedUserDetails")
-    sessionStorage.removeItem("token")
-    setIsLoggedIn(false)
-    navigate('/login')
-  }
+    sessionStorage.removeItem("loggedUserDetails");
+    sessionStorage.removeItem("token");
+    setIsLoggedIn(false);
+    navigate("/login");
+  };
 
   useEffect(() => {
     const user = sessionStorage.getItem("loggedUserDetails");
     setIsLoggedIn(!!user);
   }, []);
-  return (
-    <div className="w-full bg-linear-to-r from-indigo-950 to-blue-950 shadow-lg ">
-      <div className="max-w-ful mx-auto px-6 md:px-12 py-4 flex justify-between items-center">
 
-        {/* Brand */}
-        <h1 className="text-2xl md:text-3xl font-extrabold text-white tracking-wide">
-          Atlas CRM
+  return (
+    <header className="sticky top-0 z-100 w-full bg-linear-to-r py-4 from-[#020617] via-[#0F172A] to-[#020617] border-b border-white/5 backdrop-blur">
+      <div className="flex items-center justify-between px-6 py-4">
+        {/* Left */}
+        <h1 className="text-xl sm:text-2xl font-bold text-white tracking-wide">
+          Atlas CRM <span className="text-indigo-400">Freelancer</span>
         </h1>
 
+        {/* Right */}
         <div className="flex items-center gap-4">
           {isLoggedIn ? (
             <button
               onClick={handleLogout}
-              className="flex items-center gap-2 px-4 py-2 rounded-xl bg-red-500/90 border border-red-500/70  hover:bg-red-500 text-white transition text-sm font-medium"
+              className="flex items-center gap-2 px-4 py-2 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 hover:bg-red-500 hover:text-white transition text-sm font-medium"
             >
               <LogOut size={16} />
               Logout
@@ -44,9 +45,8 @@ const navigate=useNavigate()
             </Link>
           )}
         </div>
-
       </div>
-    </div>
+    </header>
   );
 }
 

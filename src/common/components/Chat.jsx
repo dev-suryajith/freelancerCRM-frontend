@@ -7,6 +7,9 @@ function Chat({ currentUserId, otherUserId }) {
   const [loading, setLoading] = useState(true);
   const bottomRef = useRef(null);
 
+  // const socketPort="http://localhost:5000"
+  const socketPort = "https://freelancercrm-socket-io.onrender.com"
+
   /* LOAD HISTORY */
   useEffect(() => {
     if (!currentUserId || !otherUserId) return;
@@ -14,7 +17,7 @@ function Chat({ currentUserId, otherUserId }) {
     (async () => {
       setLoading(true);
       const res = await fetch(
-        `http://localhost:5000/chat-history/${currentUserId}/${otherUserId}`
+        `${socketPort}/chat-history/${currentUserId}/${otherUserId}`
       );
       const data = await res.json();
       setMessages(data);
@@ -104,11 +107,10 @@ function Chat({ currentUserId, otherUserId }) {
                 className={`flex ${isMe ? "justify-end" : "justify-start"}`}
               >
                 <div
-                  className={`px-4 py-2 rounded-lg text-sm ${
-                    isMe
-                      ? "bg-blue-600 rounded-br-none"
-                      : "bg-gray-700 rounded-bl-none"
-                  }`}
+                  className={`px-4 py-2 rounded-lg text-sm ${isMe
+                    ? "bg-blue-600 rounded-br-none"
+                    : "bg-gray-700 rounded-bl-none"
+                    }`}
                 >
                   {msg.text}
                 </div>
