@@ -50,6 +50,9 @@ export const allFreelancerPaymentsAPI = async (reqHeader) => {
 export const updateFreelancerAPI = async (reqBody, reqHeader) => {
     return await commonAPI("PUT", `${serverURL}/updateFreelancer`, reqBody, reqHeader)
 }
+export const updateClientAPI = async (reqBody, reqHeader) => {
+    return await commonAPI("PUT", `${serverURL}/updateFreelancerClient`, reqBody, reqHeader)
+}
 //Get All Clients
 export const getAllClientsAPI = async (reqHeader) => {
     return await commonAPI("GET", `${serverURL}/allclients`, {}, reqHeader)

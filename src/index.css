@@ -1,1 +1,26 @@
 @import "tailwindcss";
+
+/* Custom dark scrollbar for chat */
+.chat-scrollbar::-webkit-scrollbar {
+  width: 8px;
+}
+
+.chat-scrollbar::-webkit-scrollbar-track {
+  background: #111827; /* dark background */
+}
+
+.chat-scrollbar::-webkit-scrollbar-thumb {
+  background-color: #374151; /* gray thumb */
+  border-radius: 9999px;
+  border: 2px solid #111827;
+}
+
+.chat-scrollbar::-webkit-scrollbar-thumb:hover {
+  background-color: #4b5563;
+}
+
+/* Firefox */
+.chat-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: #374151 #111827;
+}

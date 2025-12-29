@@ -39,8 +39,8 @@ function ClientChat() {
   }, []);
 
   return (
-    <div className="h-screen bg-gray-950 p-6">
-      <div className="max-w-4xl mx-auto h-full rounded-xl overflow-hidden shadow-lg border border-gray-800">
+    <div className="h-screen py-20">
+      <div className="max-w-4xl mt-[-75px] mx-auto h-full rounded-xl overflow-hidden shadow-lg border border-gray-800">
         {userId && freelancerId ? (
           <Chat
             currentUserId={userId}
