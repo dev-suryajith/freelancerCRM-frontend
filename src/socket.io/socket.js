@@ -3,7 +3,8 @@ import { io } from "socket.io-client";
 const socketPort = "https://freelancercrm-socket-io.onrender.com"
 
 const socket = io(socketPort, {
-  transports: ["websocket"],
+  transports: ["polling", "websocket"],
+  autoConnect: false,
   reconnection: true,
   reconnectionAttempts: Infinity,
   reconnectionDelay: 1000,
