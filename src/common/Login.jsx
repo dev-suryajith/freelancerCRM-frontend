@@ -124,7 +124,7 @@ function Login({ tab }) {
                 !resetPassword ?
                   <div>
                     <h2 className="text-3xl font-semibold text-center text-white mb-2">
-                      {tab === "register" ? "Create Account" : "Welcome Back"}
+                      {tab === "register" ? "Register as a Freelancer" : "Welcome Back"}
                     </h2>
 
                     <p className="text-center text-gray-300 text-sm mb-8">
