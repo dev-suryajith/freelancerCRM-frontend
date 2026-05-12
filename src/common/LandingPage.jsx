@@ -35,7 +35,7 @@ export default function LandingPage() {
             whileTap={{ scale: 0.97 }}
             className="bg-blue-600 hover:bg-blue-500 px-8 py-4 rounded-2xl text-lg font-semibold shadow-xl flex items-center gap-2 mx-auto"
           >
-            <Link>Get Started <ArrowRight size={20} /></Link>
+            <Link to="/login" classname='flex items-center'>Get Started <ArrowRight size={20} /></Link>
           </motion.button>
         </section>
 
@@ -93,7 +93,7 @@ export default function LandingPage() {
             whileTap={{ scale: 0.95 }}
             className="bg-blue-600 hover:bg-blue-500 px-10 py-4 rounded-2xl text-lg font-semibold shadow-xl flex items-center gap-2 mx-auto"
           >
-            <Link>Join Now <ArrowRight size={20} /></Link>
+            <Link to="/login" classname='flex items-center'>Join Now <ArrowRight size={20} /></Link>
           </motion.button>
         </section>
       </div>
