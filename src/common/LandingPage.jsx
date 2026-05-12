@@ -30,13 +30,13 @@ export default function LandingPage() {
             A modern platform to help developers create beautiful, scalable apps with ease.
           </motion.p>
 
-          <motion.Link
+          <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.97 }}
             className="bg-blue-600 hover:bg-blue-500 px-8 py-4 rounded-2xl text-lg font-semibold shadow-xl flex items-center gap-2 mx-auto"
           >
-            Get Started <ArrowRight size={20} />
-          </motion.Link>
+            <Link>Get Started <ArrowRight size={20} /></Link>
+          </motion.button>
         </section>
 
         {/* Features Section */}
@@ -93,7 +93,7 @@ export default function LandingPage() {
             whileTap={{ scale: 0.95 }}
             className="bg-blue-600 hover:bg-blue-500 px-10 py-4 rounded-2xl text-lg font-semibold shadow-xl flex items-center gap-2 mx-auto"
           >
-            Join Now <ArrowRight size={20} />
+            <Link>Join Now <ArrowRight size={20} /></Link>
           </motion.button>
         </section>
       </div>
