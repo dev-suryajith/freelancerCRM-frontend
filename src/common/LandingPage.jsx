@@ -30,13 +30,13 @@ export default function LandingPage() {
             A modern platform to help developers create beautiful, scalable apps with ease.
           </motion.p>
 
-          <motion.button
+          <Link to="/login"><motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.97 }}
             className="bg-blue-600 hover:bg-blue-500 px-8 py-4 rounded-2xl text-lg font-semibold shadow-xl flex items-center gap-2 mx-auto"
           >
-            <Link to="/login" classname='flex items-center'>Get Started <ArrowRight size={20} /></Link>
-          </motion.button>
+            Get Started <ArrowRight size={20} />
+          </motion.button></Link>
         </section>
 
         {/* Features Section */}
@@ -88,13 +88,13 @@ export default function LandingPage() {
             Join thousands of developers using our platform to build apps smarter and faster.
           </p>
 
-          <motion.button
+          <Link to="/login"><motion.button
             whileHover={{ scale: 1.07 }}
             whileTap={{ scale: 0.95 }}
             className="bg-blue-600 hover:bg-blue-500 px-10 py-4 rounded-2xl text-lg font-semibold shadow-xl flex items-center gap-2 mx-auto"
           >
-            <Link to="/login" classname='flex items-center'>Join Now <ArrowRight size={20} /></Link>
-          </motion.button>
+            Join Now <ArrowRight size={20} />
+          </motion.button></Link>
         </section>
       </div>
     </>
