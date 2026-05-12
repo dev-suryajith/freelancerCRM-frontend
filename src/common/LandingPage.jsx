@@ -1,6 +1,7 @@
 import React from "react";
 import Header from "./Header";
 import { motion } from "framer-motion";
+import { Link, useNavigate } from "react-router-dom";
 import { ArrowRight, Star, Rocket, ShieldCheck } from "lucide-react";
 
 export default function LandingPage() {
@@ -29,13 +30,13 @@ export default function LandingPage() {
             A modern platform to help developers create beautiful, scalable apps with ease.
           </motion.p>
 
-          <motion.button
+          <motion.Link
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.97 }}
             className="bg-blue-600 hover:bg-blue-500 px-8 py-4 rounded-2xl text-lg font-semibold shadow-xl flex items-center gap-2 mx-auto"
           >
             Get Started <ArrowRight size={20} />
-          </motion.button>
+          </motion.Link>
         </section>
 
         {/* Features Section */}
